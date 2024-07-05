@@ -1,0 +1,28 @@
+<launch>
+  <arg name="launch_driver" default="true"/>
+  <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
+  <arg name="sensor_model" default="miivii_sensor_kit" description="sensor model name"/>
+  <arg name="data_path" default="$(env HOME)/autoware_data" description="packages data and artifacts directory path"/>
+  <arg name="input/rois_number" default="1"/>
+  <arg name="input/image0" default="/sensing/camera/miivii_gmsl/image0"/>
+  <arg name="input/camera_info0" default="/sensing/camera/miivii_gmsl/camera_info0"/>
+  <arg name="input/rois0" default="/perception/object_recognition/detection/rois0"/>
+  <arg name="input/pointcloud" default="/rslidar_points"/>
+  <arg name="rviz" default="true"/>
+
+  <node pkg="tf2_ros" exec="static_transform_publisher" name="map2base_link" output="screen" args="0 0 0 0 0 0 map base_link"/>
+
+  <group>
+    <include file="$(find-pkg-share image_projection_based_fusion)/launch/pointpainting_fusion.launch.xml" >
+        <arg name="input/rois_number" value="$(var input/rois_number)"/>
+        <arg name="input/image0" value="$(var input/image0)"/>
+        <arg name="input/camera_info0" value="$(var input/camera_info0)"/>
+        <arg name="input/rois0" value="$(var input/rois0)"/>
+        <arg name="input/pointcloud" value="$(var input/pointcloud)"/>
+    </include>
+  </group>
+
+  <!-- You can change the config file path -->
+    <node pkg="rviz2" exec="rviz2" name="rviz2" output="screen" args="-d $(find-pkg-share autoware_launch)/rviz/miivii_fusion.rviz" if="$(var rviz)"/>
+
+</launch>
